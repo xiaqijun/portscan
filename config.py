@@ -1,0 +1,1 @@
+SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:LSxqj1002>@127.0.0.1:3306/portscan'
