@@ -50,6 +50,7 @@ def add_task():
 
 def add_task( id,scanner):
     scanner.run_scan()
+    print(f"任务 {id} 扫描完成")
     with scheduler.app.app_context():
         task = Task.query.filter_by(task_id=id).first()
         if task:
@@ -69,4 +70,5 @@ def stop_task():
         return {'status': 'error', 'message': '任务不存在或已完成'}
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.8',port=5000, debug=True)
+    host = '127.0.0.1'
+    app.run(host=host, port=5000, debug=True)

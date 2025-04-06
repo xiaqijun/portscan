@@ -96,8 +96,10 @@ class Portscan:
             executor.submit(producer)
             for _ in range(self.threads):
                 executor.submit(consumer)
-        print(f"所有线程已完成, 扫描结果保存在 {self.result_file}")
+        if self.stop_flag:
+            return self.get_results()  # 如果停止了扫描，返回结果文件
         queue.join()  # 确保所有任务完成
+        print(f"所有线程已完成, 扫描结果保存在 {self.result_file}")
         return self.get_results()
 
     def _write_batch_to_file(self, batch):
@@ -121,5 +123,6 @@ class Portscan:
     def get_status(self):
         """获取当前扫描状态"""
         return self.stop_flag
+    
     
     
