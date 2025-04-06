@@ -6,6 +6,7 @@ from datetime import datetime,timedelta
 import uuid
 from model import Task, db
 import json
+import os
 scanners = {}
 migrate=Migrate()
 scheduler=APScheduler()
@@ -58,6 +59,7 @@ def add_task( id,scanner):
             task.status = 'completed'
             task.result_file = scanner.get_results()
             db.session.commit()
+    del scanners[id]
 
 @app.route('/stop_task', methods=['POST'])
 def stop_task():
@@ -65,6 +67,7 @@ def stop_task():
     scanner=scanners.get(task_id)
     if scanner:
         scanner.stop()
+        del scanners[task_id]
         return {'status': 'success', 'message': '任务停止成功'}
     else:
         return {'status': 'error', 'message': '任务不存在或已完成'}
@@ -79,6 +82,18 @@ def get_task_result():
             return send_file(task.result_file, as_attachment=True)
         except Exception as e:
             return {'status': 'error', 'message': f'无法提供下载: {str(e)}'}
+    else:
+        return {'status': 'error', 'message': '任务不存在或已完成'}
+@app.route('/del_task', methods=['POST'])
+def del_task():
+    task_id = request.json.get('task_id')
+    task = Task.query.filter_by(task_id=task_id).first()
+    if task:
+        if os.path.exists(task.result_file):
+            os.remove(task.result_file)
+        db.session.delete(task)
+        db.session.commit()
+        return {'status': 'success', 'message': '任务删除成功'}
     else:
         return {'status': 'error', 'message': '任务不存在或已完成'}
 if __name__ == '__main__':
