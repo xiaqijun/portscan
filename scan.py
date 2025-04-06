@@ -73,6 +73,7 @@ class Portscan:
             batch = []
             while True:
                 if self.stop_flag:  # 检查停止标志位
+                    print(f"线程 {threading.current_thread().name} 停止")
                     break
                 ip_port = queue.get(timeout=1)  # 增加超时以避免死锁
                 if ip_port == (None, None):
@@ -95,6 +96,7 @@ class Portscan:
             executor.submit(producer)
             for _ in range(self.threads):
                 executor.submit(consumer)
+        print(f"所有线程已完成, 扫描结果保存在 {self.result_file}")
         queue.join()  # 确保所有任务完成
         return self.get_results()
 
